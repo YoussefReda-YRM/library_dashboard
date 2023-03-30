@@ -1,7 +1,7 @@
 const router=require('express').Router();
 const conn=require("../db/connection");
 
-/////////////////////////////////////////// show specific reader/////////////////////////////
+/////////////////////////////////////////// show search /////////////////////////////
 router.get("/:id", function (req, res) {
     const {id} = req.params ;
     conn.query("select search_value from search_values where reader_id = ?",id,(error,result,fields)=>{
