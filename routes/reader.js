@@ -34,7 +34,7 @@ router.post("/", function (req, res) {
 /////////////////////////////////////////// show specific reader/////////////////////////////
 router.get("/:id", function (req, res) {
   const {id} = req.params ;
-  conn.query("select * from users where id = ?",id,(error,result,fields)=>{
+  conn.query("select * from users where id = ? and Type = 'reader'",id,(error,result,fields)=>{
     if(result.length == 0){
       res.json({    
         message:"reader not found",
