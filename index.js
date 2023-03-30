@@ -7,9 +7,10 @@ const app = express();
 const login = require('./auth/routes/login');
 const logout = require('./auth/routes/logout');
 const books=require('./routes/books');
-const chapters=require('./routes/chapters')
+const chapters=require('./routes/chapters');
 const reader=require('./routes/reader');
 const adminAuth=require("./middleware/admin");
+const search=require('./routes/search');
 
 
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -21,6 +22,7 @@ app.use('/logout',logout);
 app.use("/books",books); 
 app.use("/chapters",chapters);
 app.use("/reader",adminAuth,reader);
+app.use("/search",search);
 
 app.listen(4000,"localhost",()=>{
 
