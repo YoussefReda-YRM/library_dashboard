@@ -1,5 +1,5 @@
 const router=require('express').Router();
-const connection = require("../db/connection");
+const connection = require("../../db/connection");
 
 const logout = ( req, res) => {
     const {id} = req.body ;
