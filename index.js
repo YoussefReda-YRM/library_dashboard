@@ -4,8 +4,8 @@ const path = require('path');
 
 const app = express();
 
-const login = require('./auth/routes/login');
-const logout = require('./auth/routes/logout');
+const login = require('./routes/auth/login');
+const logout = require('./routes/auth/logout');
 const books=require('./routes/books');
 const chapters=require('./routes/chapters')
 const reader=require('./routes/reader');

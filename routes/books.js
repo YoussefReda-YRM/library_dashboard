@@ -146,9 +146,10 @@ router.delete("/:id", function (req, res) {
 
 router.get("/filtername/:name", function (req, res) {
   const {name} = req.params ;
-
+  const data = req.body ;
+  conn.query(`INSERT INTO search_values (search_value, reader_id) VALUES ( '${name}' ,${data.reader_id} ) `);
   conn.query(`select * from books where Book_Name LIKE '%${name}%'`,(error,result,fields)=>{
-    if(error){
+    if(result.length==0){
       res.statusCode=500;
       res.json({
 
