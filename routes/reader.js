@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const conn = require("../db/connection");
+const bcrypt = require('bcrypt');
 
 
 ///////////////////////////////////////////////read reader///////////////////////////////
@@ -12,36 +13,39 @@ router.get("/", function (req, res) {
 
 //////////////////////////////////////////////add reader/////////////////////////////////
 router.post("/", function (req, res) {
-  const data = req.body;
-  if (!data.email || !data.password || !data.phone) {
-    return res.json({ status: "error", message: "please Enter your data" })
-  }
-  else {
-    conn.query('SELECT email FROM users WHERE email = ?', [email], (error, result) => {
-      if (error) {
-        res.json({ message: "this reader already exist" });
-      }
-      else {
+  const data =req.body ;
+  if(!data.email || !data.password || !data.phone ) {
+    return res.json ({
+      message:"please add correct data",
+    })
+  }   
+  else{
+    conn.query("select email from users where email = ?",data.email,(error,result,fields)=>{
+      if(result[0]){  
+        res.json({
+          message:"this reader already exist",
+                });
+              }
+      else{
         const password = bcrypt.hashSync(data.password, 8);
         conn.query("INSERT INTO users set ?",
-          { Email: data.Email, password: password, phone: data.phone },
-          (error, result, fields) => {
-            if (error) {
-              res.statusCode = 500;
-              res.json({
-                message: "reader not added",
-              });
-            }
-            else {
-              res.json({
-                message: "reader added",
-              });
-            }
-          })
-      }
+        {email:data.email, password:password, phone:data.phone},
+        (error,result,fields)=>{ 
+          if(error){
+            res.statusCode=500;  
+            res.json({
+              message:"reader not added",
+                    });
+                    }
+          else{
+          res.json({
+            message:"reader added",
+                  });
+              }
+        })}
     });
-  }
-});
+  }});
+      
 
 
 /////////////////////////////////////////// show specific reader/////////////////////////////
@@ -66,7 +70,7 @@ router.put("/:id", function (req, res) {
   const data = req.body;
   const password = bcrypt.hashSync(data.password, 8);
   conn.query("update users set ? where id = ?",
-    [{ Email: data.Email, password: password, phone: data.phone }, id], (err, result) => {
+    [{ email: data.email, password: password, phone: data.phone }, id], (err, result) => {
       if (result.affectedRows == 0) {
         res.json({
           message: "failed to update",
