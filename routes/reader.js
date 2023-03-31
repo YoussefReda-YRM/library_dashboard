@@ -1,6 +1,5 @@
-const router = require('express').Router();
-const conn = require("../db/connection");
-const bcrypt = require('bcrypt');
+const router=require('express').Router();
+const conn=require("../db/connection");
 
 
 ///////////////////////////////////////////////read reader///////////////////////////////
@@ -13,39 +12,23 @@ router.get("/", function (req, res) {
 
 //////////////////////////////////////////////add reader/////////////////////////////////
 router.post("/", function (req, res) {
-  const data =req.body ;
-  if(!data.email || !data.password || !data.phone ) {
-    return res.json ({
-      message:"please add correct data",
-    })
-  }   
-  else{
-    conn.query("select email from users where email = ?",data.email,(error,result,fields)=>{
-      if(result[0]){  
+  const data =req.body ;    
+  conn.query("INSERT INTO users set ?",
+    {Email:data.Email, password:data.password, phone:data.phone},
+    (error,result,fields)=>{ 
+      if(error){
+        res.statusCode=500;  
         res.json({
-          message:"this reader already exist",
+          message:"reader not added",
                 });
-              }
+                }
       else{
-        const password = bcrypt.hashSync(data.password, 8);
-        conn.query("INSERT INTO users set ?",
-        {email:data.email, password:password, phone:data.phone},
-        (error,result,fields)=>{ 
-          if(error){
-            res.statusCode=500;  
-            res.json({
-              message:"reader not added",
-                    });
-                    }
-          else{
-          res.json({
-            message:"reader added",
-                  });
-              }
-        })}
+      res.json({
+        message:"reader added",
+              });
+          }
+    })
     });
-  }});
-      
 
 
 /////////////////////////////////////////// show specific reader/////////////////////////////
@@ -70,13 +53,14 @@ router.put("/:id", function (req, res) {
   const data = req.body;
   const password = bcrypt.hashSync(data.password, 8);
   conn.query("update users set ? where id = ?",
-    [{ email: data.email, password: password, phone: data.phone }, id], (err, result) => {
-      if (result.affectedRows == 0) {
-        res.json({
-          message: "failed to update",
-        });
-      }
-      else {
+  [{Email:data.Email, password:data.password, phone:data.phone},id],(err,result)=>{
+        if(result.affectedRows == 0)
+        {
+          res.json({
+            message:"failed to update", 
+          });
+        }
+        else{
         res.json(result);
       }
     })
