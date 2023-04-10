@@ -13,39 +13,41 @@ router.get("/", function (req, res) {
 
 //////////////////////////////////////////////add reader/////////////////////////////////
 router.post("/", function (req, res) {
-  const data =req.body ;
-  if(!data.email || !data.password || !data.phone ) {
-    return res.json ({
-      message:"please add correct data",
+  const data = req.body;
+  if (!data.email || !data.password || !data.phone) {
+    return res.json({
+      message: "please add correct data",
     })
-  }   
-  else{
-    conn.query("select email from users where email = ?",data.email,(error,result,fields)=>{
-      if(result[0]){  
+  }
+  else {
+    conn.query("select email from users where email = ?", data.email, (error, result, fields) => {
+      if (result[0]) {
         res.json({
-          message:"this reader already exist",
-                });
-              }
-      else{
+          message: "this reader already exist",
+        });
+      }
+      else {
         const password = bcrypt.hashSync(data.password, 8);
         conn.query("INSERT INTO users set ?",
-        {email:data.email, password:password, phone:data.phone},
-        (error,result,fields)=>{ 
-          if(error){
-            res.statusCode=500;  
-            res.json({
-              message:"reader not added",
-                    });
-                    }
-          else{
-          res.json({
-            message:"reader added",
-                  });
-              }
-        })}
+          { email: data.email, password: password, phone: data.phone },
+          (error, result, fields) => {
+            if (error) {
+              res.statusCode = 500;
+              res.json({
+                message: "reader not added",
+              });
+            }
+            else {
+              res.json({
+                message: "reader added",
+              });
+            }
+          })
+      }
     });
-  }});
-      
+  }
+});
+
 
 
 /////////////////////////////////////////// show specific reader/////////////////////////////
