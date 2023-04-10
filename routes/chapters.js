@@ -1,30 +1,9 @@
-
-const {v4} =require('uuid');
 const router=require('express').Router();
 const conn=require("../db/connection");
-const adminAuth=require("../middleware/admin");
-const multer = require('multer')
-const path = require('path');
-var url = require('url');
-var fs = require('fs');
-
-
-
-var storage = multer.diskStorage({
-destination: function (req, file, cb) {
-   cb(null,path.join(__dirname,'../images'));
-},
-filename: function (req, file, cb) {
-   cb(null, Date.now() + '-' + file.fieldname + '-' + Date.now() + path.extname(file.originalname));
-}
-});
-var upload = multer({ storage: storage });
-
-
-
 //read book_chapters
-router.get("/", function (req, res) {
-  conn.query("select * from  book_chapters",(error,result,fields)=>{
+router.get("/onechapter/:id", function (req, res) {
+  const {id} = req.params ;
+  conn.query("select * from  book_chapters where id=? ", id,(error,result,fields)=>{
     res.json(result);
 
   });
@@ -36,33 +15,34 @@ router.get("/", function (req, res) {
 
 
 
-
 //add chapter
 
-router.post("/", upload.single('PDF_File'), function (req, res) {
+
+router.post("/", function (req, res) {
   const data =req.body ;
-  const imgsrc = req.get('host')+'/images/' + req.file.filename;
+
+        conn.query("INSERT INTO book_chapters set ?",
+        {Title:data.Title,Description:data.Description,Book_Id:data.Book_Id} ,
+        (error,result,fields)=>{ 
+          if(error){
+            res.statusCode=500;  
+            res.json({
+              message:"chapter not added",
+                    });
+                    }
+          else{
+          res.json({
+            message:"chapter added",
+                  });
+              }
+        })}
   
-  conn.query("INSERT INTO book_chapters set ?",
-  {Title:data.Title,Description:data.Description,Book_Id:data.Book_Id,PDF_File:imgsrc},(error,result,fields)=>{
-    
-    if(error){
-      res.statusCode=500;
-      
-      res.json({
+);
 
-        message:"chapter not created",
-    });
-    }
-    else{
-    res.json({
 
-      message:"chapter created",
-    } );
-  }
-  })
 
-  });
+
+
 
 //read chapter related to spacific book
 
@@ -86,37 +66,28 @@ router.post("/", upload.single('PDF_File'), function (req, res) {
 });
 
 
-// update chapter
-router.put("/:id",upload.single('PDF_File'), function (req, res) {
+// update chapters
+
+
+router.put("/:id", function (req, res) {
 
 
 const {id} = req.params ;
-conn.query(`select PDF_File from  book_chapters where id = ${id}`,(error,result,fields)=>{
-  if(result){
-  const filpath=JSON.parse(JSON.stringify(result));
-  fs.unlinkSync(path.join(__dirname,"../",filpath[0].PDF_File.slice(req.get('host').length)));
-
-  }
-});
 
 const data = req.body ;
-const imgsrc = req.get('host')+'/images/' + req.file.filename;
-
-conn.query("update book_chapters set ? where id = ?",[ {Title:data.Title,Description:data.Description,PDF_File:imgsrc},id],(err,result)=>{
 
 
-if(err)
-{
-res.statusCode=500;
-res.json({
-  message:"failed to update" 
-});
-}
-else{
-res.json({
-message:"updated" 
-});
-}
+conn.query("update book_chapters set ? where id = ?",[ {Title:data.Title,Description:data.Description},id],(err,result)=>{
+
+
+  if (result.affectedRows == 0) {
+    res.json({
+      message: "failed to update",
+    });
+  }
+  else {
+    res.json(result);
+  }
 })
 
 
@@ -128,25 +99,20 @@ router.delete("/:id", function (req, res) {
 
 const {id} = req.params ;
 
-conn.query(`select PDF_File from  book_chapters where id = ${id}`,(error,result,fields)=>{
-  if(result){
-  const filpath=JSON.parse(JSON.stringify(result));
-  fs.unlinkSync(path.join(__dirname,"../",filpath[0].PDF_File.slice(req.get('host').length)));
-  }
-});
+
 
 conn.query("delete from book_chapters where  ?",{id:id},(err,result)=>{
 
 
-  if(err)
-  {
-    res.statusCode=500;
+  if (result.affectedRows == 0) {
     res.json({
-      message:"failed to deleted" 
+      message: "failed to delete",
     });
   }
-  else{
-  res.json("chapter deleted");
+  else {
+    res.json({
+      message: "reader delete",
+    });
   }
 
 })
