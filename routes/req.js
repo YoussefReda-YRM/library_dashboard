@@ -1,4 +1,3 @@
-
 const router=require('express').Router();
 const conn=require("../db/connection");
 const adminAuth=require("../middleware/admin");
@@ -28,7 +27,7 @@ router.post('/send-request' , (req, res) => {
    
     //admin retrieve all requests
     router.get("/",adminAuth, function (req, res) {
-      conn.query("select * from  requests",(error,result,fields)=>{
+      conn.query("select requests.id ,users.email, books.Book_Name,requests.status_req  from requests inner join books on requests.book_id=books.id inner join users on requests.reader_id=users.id where status_req = 'pending'",(error,result,fields)=>{
         res.json(result);
   
       });
@@ -38,7 +37,7 @@ router.post('/send-request' , (req, res) => {
    //reader retrieve his requests
     router.get("/:id", function (req, res) {
       const {id} = req.params ;
-      conn.query("select * from requests where ?",{reader_id :id },(error,result,fields)=>{
+      conn.query("select * from requests INNER JOIN books ON requests.book_id = books.id  WHERE requests.reader_id  = ?",[id],(error,result,fields)=>{
         if(result.length == 0){
           res.json({
             message:"req not found",
@@ -49,7 +48,21 @@ router.post('/send-request' , (req, res) => {
       }
       })
   });
-
+ // get on request to one book
+ router.get("/:reader_id/:book_id", function (req, res) {
+  const {reader_id} = req.params ;
+  const {book_id} = req.params ;
+  conn.query(`select * from requests where reader_id =${reader_id} and book_id=${book_id} `,(error,result,fields)=>{
+    if(result.length == 0){
+      res.json({
+        message:"req not found",
+    });
+  }
+  else{
+    res.json(result );
+  }
+  })
+});
 
   
   

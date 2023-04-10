@@ -1,4 +1,4 @@
- const router=require('express').Router();
+const router=require('express').Router();
  const conn=require("../db/connection");
  const adminAuth=require("../middleware/admin");
 
@@ -7,13 +7,9 @@
   
  router.put("/accept/:id",adminAuth, function (req, res) {
   
-  
   const {id} = req.params ;
- 
-  const data = req.body ;
   
-
-  conn.query("update requests set ? where id = ?",[{status_req:data.status_req},id],(err,result)=>{
+  conn.query("update requests set status_req ='accepted' where id = ?",id,(err,result)=>{
 
 
 if(err)
@@ -39,10 +35,10 @@ router.put("/reject/:id",adminAuth, function (req, res) {
   
   const {id} = req.params ;
  
-  const data = req.body ;
+
   
 
-  conn.query("update requests set ? where id = ?",[{status_req:data.status_req},id],(err,result)=>{
+  conn.query("update requests set status_req ='rejected' where id = ?",id,(err,result)=>{
 
 
 if(err)
