@@ -3,6 +3,8 @@ var bodyParser = require('body-parser');
 const path = require('path');
 
 const app = express();
+var cors = require('cors')
+app.use(cors())
 
 const login = require('./routes/auth/login');
 const logout = require('./routes/auth/logout');
@@ -28,8 +30,6 @@ app.use("/reader", adminAuth, reader);
 app.use('/req', req);
 app.use('/response', response);
 app.use("/search", search);
-var cors = require('cors')
-app.use(cors())
 
 app.listen(4000, "localhost", () => {
 

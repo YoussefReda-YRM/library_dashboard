@@ -4,19 +4,19 @@ const router = require('express').Router();
 
 const login = async (req, res) => {
     const { email, password } = req.body
+
     if (!email || !password) return res.json({ status: "error", error: "Please Enter youer email and password" });
     else {
         connection.query('SELECT * FROM users WHERE email = ?', [email], async (err, result) => {
-            if (err) {
+            if (result.length == 0) {
                 res.statusCode = 500;
                 res.json({ message: "user not found", })
             };
             if (result[0]) {
-                console.log(password)
-                console.log("password compare : " + result[0].password);
-                const isPasswordCorret = bcrypt.compare(password, result[0].password)
+                const isPasswordCorret = await bcrypt.compare(password, result[0].password)
+                
                 if (!isPasswordCorret) {
-                    res.json({ message: "Invalid password" });
+                    res.json({ message: "Invalid input" });
                 }
                 else {
                     connection.query("UPDATE users SET status = 'active' WHERE id = ?", result[0].id);
